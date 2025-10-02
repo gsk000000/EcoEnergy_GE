@@ -1,0 +1,122 @@
+{% extends "dispositivos/base.html" %}
+
+{% block title %}Dashboard - Monitoreo EcoEnergy{% endblock title %}
+
+{% block content %}
+
+<div class="row mb-4">
+    <div class="col">
+        <h2>Dashboard Principal de **{{ org.name }}**</h2>
+        <p class="text-muted">Resumen de la actividad de sus dispositivos en la última semana.</p>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'generate_sample_data' %}" class="btn btn-warning">Generar Datos de Ejemplo</a>
+    </div>
+</div>
+
+<hr>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-danger mb-3">
+            <div class="card-header">Alertas Críticas</div>
+            <div class="card-body">
+                <h4 class="card-title">{{ alerts_count.Critical|default:0 }}</h4>
+                <p class="card-text">Alertas de máxima prioridad.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-header">Alertas Altas</div>
+            <div class="card-body">
+                <h4 class="card-title">{{ alerts_count.High|default:0 }}</h4>
+                <p class="card-text">Problemas que requieren atención.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-header">Alertas Medias</div>
+            <div class="card-body">
+                <h4 class="card-title">{{ alerts_count.Medium|default:0 }}</h4>
+                <p class="card-text">Eventos informativos o leves.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row mb-5">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                Dispositivos por Categoría
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for item in devices_by_category %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ item.name }}
+                        <span class="badge bg-primary rounded-pill">{{ item.count }}</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-center text-muted">No hay categorías.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                Dispositivos por Zona
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for item in devices_by_zone %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ item.name }}
+                        <span class="badge bg-success rounded-pill">{{ item.count }}</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-center text-muted">No hay zonas.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Últimas 5 Alertas</h3>
+        <ul class="list-group">
+            {% for alert in recent_alerts %}
+                <li class="list-group-item list-group-item-{{ alert.severity|lower|slice:"1"|default:'secondary' }}">
+                    <strong>[{{ alert.severity }}]</strong> {{ alert.message }} 
+                    <small class="text-muted">({{ alert.device.name }}) - {{ alert.triggered_at|date:"H:i - d/M" }}</small>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-center text-muted">No hay alertas recientes.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="col-md-6">
+        <h3>Últimas 10 Mediciones</h3>
+        <ul class="list-group">
+            {% for measurement in last_measurements %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ measurement.device.name }}</strong>
+                        <small class="text-muted"> ({{ measurement.device.category.name }})</small>
+                    </div>
+                    <span class="badge bg-secondary">
+                        {{ measurement.value }} | {{ measurement.measured_at|date:"H:i:s" }}
+                    </span>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-center text-muted">No hay mediciones recientes.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+{% endblock content %}
