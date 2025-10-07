@@ -1,0 +1,44 @@
+{% extends "dispositivos/base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Últimas 50 Mediciones</h2>
+                </div>
+                <div class="card-body">
+                    {% if measurements %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Fecha/Hora</th>
+                                    <th>Dispositivo</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for measurement in measurements %}
+                                <tr>
+                                    <td>{{ measurement.measured_at|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'device_detail' measurement.device.id %}">
+                                            {{ measurement.device.name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ measurement.value }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No hay mediciones registradas.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

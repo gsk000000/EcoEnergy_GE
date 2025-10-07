@@ -40,12 +40,12 @@ def register_view(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Organizacion registrada de manera exitosa. Ahora puedes logearte.")
+            messages.success(request, "Organización registrada exitosamente. Ahora puedes iniciar sesión.")
             return redirect("login")
     else:
-            form = RegisterForm()
+        form = RegisterForm()
     return render(request, "dispositivos/register.html", {"form": form})
-    
+
 def login_view(request):
     if request.method == "POST":
         form = LoginForm(request.POST)
@@ -91,14 +91,6 @@ def dashboard_view(request):
     if not org_id:
         messages.error(request, "Necesitas iniciar sesion.")
         return redirect("login")
-    org = Organization.objects.get(id=org_id)
-    return render(request, "dispositivos/dashboard.html", {"org": org})
-
-def dashboard_view(request):
-    org_id = request.session.get("org_id")
-    if not org_id:
-        messages.error(request, "Necesitas iniciar sesion.")
-        return redirect("login")
     
     try:
         org = Organization.objects.get(id=org_id)
@@ -116,7 +108,7 @@ def dashboard_view(request):
         )
         
         # Alertas de la semana
-        week_ago = timezone.now() - timedelta(days=7)  # Necesita timezone y timedelta
+        week_ago = timezone.now() - timedelta(days=7)
         alerts_week = Alert.objects.filter(
             organization_id=org_id, 
             triggered_at__gte=week_ago
@@ -146,6 +138,11 @@ def dashboard_view(request):
             "last_measurements": last_measurements,
             "recent_alerts": recent_alerts,
         })
+        
+    except Organization.DoesNotExist:
+        messages.error(request, "Organización no encontrada.")
+        return redirect("login")
+
         
     except Organization.DoesNotExist:
         messages.error(request, "Organización no encontrada.")

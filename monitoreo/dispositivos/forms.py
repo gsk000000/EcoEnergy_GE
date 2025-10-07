@@ -2,15 +2,26 @@ from django import forms
 from .models import Organization, Device, Category, Zone
 
 class RegisterForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
+    password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
+    confirm_password = forms.CharField(widget=forms.PasswordInput, label="Confirmar Contraseña")
 
     class Meta:
         model = Organization
-        fields = ["name", "email", "password"]
+        fields = ['name', 'email', 'password']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        confirm = cleaned_data.get("confirm_password")
+
+        if password and confirm and password != confirm:
+            raise forms.ValidationError("Las contraseñas no coinciden.")
+        return cleaned_data
 
     def save(self, commit=True):
+        # No guardamos la contraseña en texto plano
         org = super().save(commit=False)
-        org.set_password(self.cleaned_data["password"])
+        org.set_password(self.cleaned_data["password"])  # ✅ Hash password
         if commit:
             org.save()
         return org

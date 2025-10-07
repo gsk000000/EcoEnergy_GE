@@ -1,0 +1,65 @@
+{% extends "dispositivos/base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Dispositivos</h2>
+    <div>
+      <a href="{% url 'add_device' %}" class="btn btn-success me-2">+ Añadir Dispositivo</a>
+      <a href="{% url 'generate_sample_data' %}" class="btn btn-info">Generar Ejemplos</a>
+    </div>
+  </div>
+  
+  <form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <label for="category" class="form-label">Categoría</label>
+      <select name="category" id="category" class="form-select">
+        <option value="all">Todas</option>
+        {% for cat in categories %}
+          <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
+            {{ cat.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label for="zone" class="form-label">Zona</label>
+      <select name="zone" id="zone" class="form-select">
+        <option value="all">Todas</option>
+        {% for z in zones %}
+          <option value="{{ z.id }}" {% if selected_zone == z.id|stringformat:"s" %}selected{% endif %}>
+            {{ z.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      <button type="submit" class="btn btn-primary w-100">Aplicar filtros</button>
+    </div>
+  </form>
+
+ <div class="row">
+    {% for d in devices %} 
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ d.name }}</h5>
+            <p class="card-text">
+              Categoría: {{ d.category.name }}<br>
+              Zona: {{ d.zone.name }}
+            </p>
+            <a href="{% url 'device_detail' d.id %}" class="btn btn-sm btn-outline-primary">Ver detalle</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="alert alert-info text-center">
+          <p>No hay dispositivos disponibles</p>
+          <a href="{% url 'add_device' %}" class="btn btn-primary mt-2">Añadir Primer Dispositivo</a>
+          <a href="{% url 'generate_sample_data' %}" class="btn btn-secondary mt-2">Generar Dispositivos de Ejemplo</a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "dispositivos/base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Información del dispositivo -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Detalle del Dispositivo: {{ device.name }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><strong>Categoría:</strong> {{ device.category.name }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Zona:</strong> {{ device.zone.name }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Organización:</strong> {{ device.organization.name }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mediciones del dispositivo -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Últimas Mediciones</h3>
+                </div>
+                <div class="card-body">
+                    {% if measurements %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Fecha/Hora</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for measurement in measurements %}
+                                <tr>
+                                    <td>{{ measurement.measured_at|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ measurement.value }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No hay mediciones registradas para este dispositivo.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Alertas del dispositivo -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Alertas del Dispositivo</h3>
+                </div>
+                <div class="card-body">
+                    {% if alerts %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Severidad</th>
+                                    <th>Mensaje</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for alert in alerts %}
+                                <tr>
+                                    <td>{{ alert.triggered_at|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if alert.severity == 'Critical' %}bg-danger
+                                            {% elif alert.severity == 'High' %}bg-warning text-dark
+                                            {% elif alert.severity == 'Medium' %}bg-info text-dark{% endif %}">
+                                            {{ alert.severity }}
+                                        </span>
+                                    </td>
+                                    <td>{{ alert.message }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No hay alertas registradas para este dispositivo.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
