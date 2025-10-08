@@ -1,60 +1,52 @@
 from django import forms
-from .models import Organization, Device, Category, Zone
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from .models import Organization
 
-class RegisterForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
-    confirm_password = forms.CharField(widget=forms.PasswordInput, label="Confirmar Contraseña")
-
-    class Meta:
-        model = Organization
-        fields = ['name', 'email', 'password']
-
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get("password")
-        confirm = cleaned_data.get("confirm_password")
-
-        if password and confirm and password != confirm:
-            raise forms.ValidationError("Las contraseñas no coinciden.")
-        return cleaned_data
-
-    def save(self, commit=True):
-        # No guardamos la contraseña en texto plano
-        org = super().save(commit=False)
-        org.set_password(self.cleaned_data["password"])  # ✅ Hash password
-        if commit:
-            org.save()
-        return org
-    
 class LoginForm(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
 
-class PasswordResetForm(forms.Form):
+    def clean(self):
+        cleaned = super().clean()
+        email = cleaned.get("email")
+        password = cleaned.get("password")
+        try:
+            user = User.objects.get(email=email)
+            auth_user = authenticate(username=user.username, password=password)
+            if not auth_user:
+                raise forms.ValidationError("Credenciales inválidas.")
+            cleaned["user"] = auth_user
+        except User.DoesNotExist:
+            raise forms.ValidationError("Credenciales inválidas.")
+        return cleaned
+
+
+class RegisterForm(forms.Form):
+    org_name = forms.CharField(label="Company name", max_length=100)
+    org_rut = forms.CharField(label="RUT", max_length=12)
+    org_address = forms.CharField(label="Address", max_length=200)
     email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput)
 
-class DeviceForm(forms.ModelForm):
-    class Meta:
-        model = Device
-        fields = ['name', 'category', 'zone']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'category': forms.Select(attrs={'class': 'form-control'}),
-            'zone': forms.Select(attrs={'class': 'form-control'}),
-        }
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("Ya existe un usuario con ese email.")
+        return email
 
-class CategoryForm(forms.ModelForm):
-    class Meta:
-        model = Category
-        fields = ['name']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-        }
-
-class ZoneForm(forms.ModelForm):
-    class Meta:
-        model = Zone
-        fields = ['name']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-        }
+    def save(self):
+        # Crear Organization y User simple (username = email)
+        org = Organization.objects.create(
+            name=self.cleaned_data["org_name"],
+            rut=self.cleaned_data["org_rut"],
+            address=self.cleaned_data["org_address"],
+        )
+        user = User.objects.create_user(
+            username=self.cleaned_data["email"],
+            email=self.cleaned_data["email"],
+            password=self.cleaned_data["password"],
+        )
+        return user, org
+class PasswordResetRequestForm(forms.Form):
+    email = forms.EmailField()

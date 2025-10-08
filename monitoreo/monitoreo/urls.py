@@ -1,26 +1,18 @@
+from django.contrib import admin
 from django.urls import path
-from dispositivos import views
+from dispositivos.views import dashboard, device_list, device_detail, measurement_list, alerts_week, login_view, logout_view, register_view, password_reset_request
+
 urlpatterns = [
-    # Autenticación y sesiones
-    path('', views.login_view, name='login'),
-    path('register/', views.register_view, name='register'),
-    path('password-reset/', views.password_reset_view, name='password_reset'),
+    path('admin/', admin.site.urls),
+    path('', dashboard, name='dashboard'),
+    path('devices/device_list/', device_list, name='device_list'),
+    path('devices/<int:device_id>/', device_detail, name='device_detail'),
+    path('devices/measurements/', measurement_list, name='measurement_list'),
+    path('alerts/week/', alerts_week, name="alerts_week"),
 
-    # Dashboard
-    path('dashboard/', views.dashboard_view, name='dashboard'),
-
-    # Dispositivos
-    path('devices/', views.device_list_view, name='device_list'),
-    path('devices/add/', views.add_device_view, name='add_device'),
-    path('devices/<int:device_id>/', views.device_detail_view, name='device_detail'),
-
-    # Categorías y Zonas
-    path('categories/add/', views.add_category_view, name='add_category'),
-    path('zones/add/', views.add_zone_view, name='add_zone'),
-
-    # Mediciones
-    path('measurements/', views.measurement_list_view, name='measurement_list'),
-
-    # Generar datos de ejemplo
-    path('generate-sample/', views.generate_sample_data_view, name='generate_sample_data'),
-]
+    # auth
+    path('login/', login_view, name="login"),
+    path('logout/', logout_view, name="logout"),
+    path('register/', register_view, name="register"),
+    path('password-reset/', password_reset_request, name="password_reset"),
+    ]
