@@ -89,8 +89,10 @@ def alerts_week(request):
     week_start = timezone.now() - timedelta(days=7)
 
     alerts = Alert.objects.select_related("device").filter(
-        organization_id=org_id, deleted_at__isnull=True, triggered_at__gte=week_start
-    ).order_by("-triggered_at")
+        organization_id=org_id,
+        deleted_at__isnull=True,
+        created_at__gte=week_start  # <- usar created_at si date no existe
+    ).order_by("-created_at")
 
     for a in alerts:
         a.alert_level = TRANSLATE_LEVELS.get(a.alert_level, a.alert_level)
