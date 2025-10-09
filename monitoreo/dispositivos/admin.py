@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils import timezone
 from .models import Category, Zone, Device, Measurement, Alert, Organization
 
 admin.site.register(Category)
@@ -11,7 +12,7 @@ admin.site.register(Device)
 # --- 1. Inline para ver Mediciones en el Dispositivo ---
 class MeasurementInline(admin.TabularInline):
     model = Measurement
-    extra = 1
+    extra = 0
     fields = ('value', 'measured_at', "date", "unit")
     readonly_fields = ('value', 'measured_at')
     can_delete = False
@@ -19,7 +20,7 @@ class MeasurementInline(admin.TabularInline):
 class DeviceAdmin(admin.ModelAdmin):
     list_display = ("name", "category", "zone", "organization")
     list_filter = ("organization", "category", "zone")
-    search_fields = ("name",)
+    search_fields = ("name", "category__name", "zone__name", "organization__name")
     ordering = ("name",)
     list_select_related = ("category", "zone", "organization")
     
@@ -33,7 +34,7 @@ class DeviceAdmin(admin.ModelAdmin):
         return qs
 @admin.action(description='Marcar alertas seleccionadas como revisadas')
 def mark_as_reviewed(modeladmin, request, queryset):
-    updated = queryset.update(deleted_at=timezone.now()) 
+    updated = queryset.update(deleted_at=timezone.now())
     modeladmin.message_user(request, f"{updated} alertas marcadas como revisadas.")
 
 class AlertAdmin(admin.ModelAdmin):
