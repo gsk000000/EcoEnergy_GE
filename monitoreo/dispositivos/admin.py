@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.utils import timezone
 from .models import Category, Zone, Device, Measurement, Alert, Organization
 
 admin.site.register(Category)
@@ -16,6 +15,11 @@ class MeasurementInline(admin.TabularInline):
     fields = ('value', 'measured_at', "date", "unit")
     readonly_fields = ('value', 'measured_at')
     can_delete = False
+    def clean_value(self):
+        val = self.cleaned_data.get("value")
+        if val < 0:
+            raise ValidationError("El valor de la medición no puede ser negativo.")
+        return val
 
 class DeviceAdmin(admin.ModelAdmin):
     list_display = ("name", "category", "zone", "organization")
@@ -35,6 +39,7 @@ class DeviceAdmin(admin.ModelAdmin):
 @admin.action(description='Marcar alertas seleccionadas como revisadas')
 def mark_as_reviewed(modeladmin, request, queryset):
     updated = queryset.update(deleted_at=timezone.now())
+     
     modeladmin.message_user(request, f"{updated} alertas marcadas como revisadas.")
 
 class AlertAdmin(admin.ModelAdmin):
