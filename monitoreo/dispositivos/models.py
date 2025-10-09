@@ -26,23 +26,15 @@ class Organization(BaseModel):
 
     def check_password(self, raw_password):
         return check_password(raw_password, self.password)
-
-    def __str__(self):
-        return self.name
     
 class Category(BaseModel):
     name = models.CharField(max_length=100)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return self.name
-
 class Zone(BaseModel):
     name = models.CharField(max_length=50)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return self.name
     
 class Device(BaseModel):
     name = models.CharField(max_length=100)
@@ -50,8 +42,6 @@ class Device(BaseModel):
     zone = models.ForeignKey(Zone, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f"{self.name} ({self.category.name})"
 
 class Measurement(BaseModel):
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
@@ -59,8 +49,6 @@ class Measurement(BaseModel):
     measured_at = models.DateTimeField(default=timezone.now)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f"{self.device.name} - {self.value} at {self.measured_at}"
     
 class Alert(models.Model):
     message = models.CharField(max_length=250)
@@ -71,6 +59,3 @@ class Alert(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return f"Alert {self.device} - {self.message}"

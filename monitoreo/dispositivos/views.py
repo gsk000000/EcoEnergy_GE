@@ -125,9 +125,8 @@ def device_list(request):
 def device_detail(request, device_id):
     org_id = _current_org(request)
     device = get_object_or_404(Device, id=device_id, organization_id=org_id, deleted_at__isnull=True)
-
-    measurements = Measurement.objects.filter(device=device, deleted_at__isnull=True).order_by("-measured_at")
-    alerts = Alert.objects.filter(device=device, deleted_at__isnull=True).order_by("-triggered_at")
+    measurements = Measurement.objects.filter(device=device, deleted_at__isnull=True).order_by("-date")
+    alerts = Alert.objects.filter(device=device, deleted_at__isnull=True).order_by("-date")
 
     return render(request, "dispositivos/device_detail.html", {
         "device": device,

@@ -4,10 +4,10 @@ from dispositivos.models import Category, Product, AlertRule, ProductAlertRule
 class Command(BaseCommand):
 	help = "Carga catálogo en español (categorías, productos, alertas y overrides)"
 
-	def handle(self, *args, **kwargs):
+	def handle(self):
 		cat_il, _ = Category.objects.get_or_create(name="Iluminación")
-		cat_cl, _ = Category.objects.get_or_create(name="Climatización")
-		cat_co, _ = Category.objects.get_or_create(name="Computación")
+		Category.objects.get_or_create(name="Climatización")
+		Category.objects.get_or_create(name="Computación")
 
 		p1, _ = Product.objects.get_or_create(
 			sku="LED-50W",
@@ -29,12 +29,12 @@ class Command(BaseCommand):
 			severity="HIGH",
 			defaults=dict(unit="kWh", default_max_threshold=50.0)
 		)
-		r2, _ = AlertRule.objects.get_or_create(
+		AlertRule.objects.get_or_create(
 			name="Consumo en espera elevado",
 			severity="MEDIUM",
 			defaults=dict(unit="kWh", default_max_threshold=0.3)
 		)
-		r3, _ = AlertRule.objects.get_or_create(
+		AlertRule.objects.get_or_create(
 			name="Bajo rendimiento",
 			severity="LOW",
 			defaults=dict(unit="kWh", default_min_threshold=0.5)
