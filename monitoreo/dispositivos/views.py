@@ -1,5 +1,4 @@
 from datetime import timedelta
-
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -175,16 +174,21 @@ def login_view(request):
     if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
-            user = form.cleaned_data["user"]
-            login(request, user)
-            return redirect("dashboard")
+            user = form.cleaned_data.get("user")
+            org = form.cleaned_data["org"]
+            if user is not None:
+                login(request, user)
+                request.session["org_id"] = org.id  # guarda sesión
+                messages.success(request, f"Bienvenido {org.name}!")
+                return redirect("dashboard")
+            else:
+                messages.error(request, "Error en las credenciales.")
         else:
-            messages.error(request, "Credenciales inválidas.")
+            messages.error(request, "Error en las credenciales.")
     else:
         form = LoginForm()
 
     return render(request, "dispositivos/login.html", {"form": form})
-
 
 # --- Registro ---
 def register_view(request):

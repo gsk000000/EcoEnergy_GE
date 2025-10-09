@@ -21,7 +21,7 @@
               <label>Contraseña</label>
               <input type="password" name="password" class="form-control" required>
             </div>
-            {% if form.non_field_errors %}
+            {% if form and form.non_field_errors %}
               <div class="alert alert-danger">{{ form.non_field_errors }}</div>
             {% endif %}
             <button class="btn btn-primary w-100">Entrar</button>
