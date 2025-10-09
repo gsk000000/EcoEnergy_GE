@@ -50,3 +50,24 @@ class AlertAdmin(admin.ModelAdmin):
     # Asegurar que solo se muestren las alertas NO revisadas
     def get_queryset(self, request):
         return super().get_queryset(request).filter(deleted_at__isnull=True)
+    
+class ZoneAdmin(admin.ModelAdmin):
+    list_display = ("name", "organization")
+    list_filter = ("organization",)
+    search_fields = ("name",)
+    ordering = ("name",)
+    inlines = [DeviceAdmin]  # Inline de Devices
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "organization")
+    list_filter = ("organization",)
+    search_fields = ("name",)
+    ordering = ("name",)
+
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ("name", "rut", "address", "created_at")
+    search_fields = ("name", "rut")
+    ordering = ("name",)
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ("name", "rut", "address", "created_at")
+    search_fields = ("name", "rut")
+    ordering = ("name",)
