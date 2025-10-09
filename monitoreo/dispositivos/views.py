@@ -82,10 +82,7 @@ def dashboard(request):
         alerts_summary = {"Grave": 0, "Alto": 0, "Mediano": 0}
         recent_alerts = []
 
-    return render(
-        request,
-        "device/inicio.html",
-        {
+    return render(request,"dispositivos/dashboard.html", {
             "latest_measurements": latest_measurements,
             "device_by_category": device_by_category,
             "device_by_zone": device_by_zone,
@@ -93,9 +90,6 @@ def dashboard(request):
             "recent_alerts": recent_alerts,
         },
     )
-
-
-
 
 # Alertas de la semana (HU5)
 
@@ -116,7 +110,7 @@ def alerts_week(request):
     for a in alerts:
         a.alert_level = TRANSLATE_LEVELS.get(a.alert_level, a.alert_level)
 
-    return render(request, "device/alerts_week.html", {"alerts": alerts})
+    return render(request, "dispositivos/alerts_week.html", {"alerts": alerts})
 
 
 
@@ -134,7 +128,7 @@ def device_detail(request, device_id):
 
     return render(
         request,
-        "device/device_detail.html",
+        "dispositivos/device_detail.html",
         {"device": device, "measurements": measurements, "alerts": alerts},
     )
 
@@ -151,7 +145,7 @@ def device_list(request):
 
     return render(
         request,
-        "device/device_list.html",
+        "dispositivos/device_list.html",
         {"devices": devices, "categories": categories, "selected_category": category_id},
     )
 
@@ -170,46 +164,41 @@ def measurement_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'device/measurement_list.html', {
+    return render(request, 'dispositivos/measurement_list.html', {
         'page_obj': page_obj,
         'sort': sort,  # lo pasamos al template para mantener la selección
     })
 
 
-
-# Autenticación HU6, HU7 y HU8
+# --- Login ---
 def login_view(request):
-    if request.user.is_authenticated:
-        return redirect("dashboard")
     if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
             user = form.cleaned_data["user"]
             login(request, user)
-            org = Organization.objects.order_by("id").first()
-            request.session["org_id"] = org.id if org else None
             return redirect("dashboard")
+        else:
+            messages.error(request, "Credenciales inválidas.")
     else:
         form = LoginForm()
-    return render(request, "device/login.html", {"form": form})
+
+    return render(request, "dispositivos/login.html", {"form": form})
 
 
-def logout_view(request):
-    logout(request)
-    return redirect("login")
-
-
+# --- Registro ---
 def register_view(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
-            user, org = form.save()
             messages.success(request, "Registro exitoso. Ya puedes iniciar sesión.")
             return redirect("login")
+        else:
+            messages.error(request, "Por favor corrige los errores del formulario.")
     else:
         form = RegisterForm()
-    return render(request, "device/register.html", {"form": form})
 
+    return render(request, "dispositivos/register.html", {"form": form})
 
 def password_reset_request(request):
     if request.method == "POST":
@@ -222,4 +211,11 @@ def password_reset_request(request):
             return redirect("login")
     else:
         form = PasswordResetRequestForm()
-    return render(request, "device/password_reset.html", {"form": form})
+    return render(request, "dispositivos/password_reset.html", {"form": form})
+
+# --- Logout ---
+@login_required
+def logout_view(request):
+    logout(request)
+    messages.info(request, "Has cerrado sesión.")
+    return redirect("login")
