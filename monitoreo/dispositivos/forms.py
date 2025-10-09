@@ -61,7 +61,7 @@ class RegisterForm(forms.Form):
         )
 
         # Crear grupo Usuario Limitado con permisos de solo lectura
-        grupo_limitado, created = Group.objects.get_or_create(name="Usuario Limitado")
+        grupo_limitado = Group.objects.get_or_create(name="Usuario Limitado")[0]
         ct_measure = ContentType.objects.get_for_model(Measurement)
         ct_alert = ContentType.objects.get_for_model(Alert)
         permisos = [

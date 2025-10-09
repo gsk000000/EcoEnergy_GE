@@ -20,3 +20,8 @@ class DeviceAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     ordering = ("name",)
     list_select_related = ("category", "zone", "organization")
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(organization=request.user.userprofile.organization)

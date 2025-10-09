@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .forms import LoginForm, RegisterForm, PasswordResetRequestForm
-from .models import Alert, Category, Device, Measurement, Organization, Zone
+from .models import Alert, Category, Device, Measurement, Zone
 
 
 # Utilidad
