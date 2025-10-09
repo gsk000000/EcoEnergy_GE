@@ -8,8 +8,25 @@ from django.shortcuts import redirect, render
 
 # --- Formulario de Login ---
 class LoginForm(forms.Form):
-    username = forms.CharField(label="Usuario")
-    password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
+    email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    def clean(self):
+        cleaned = super().clean()
+        email = cleaned.get("email")
+        password = cleaned.get("password")
+        try:
+            user = User.objects.get(email=email)
+            auth_user = authenticate(username=user.username, password=password)
+            if not auth_user:
+                raise forms.ValidationError("Credenciales inválidas.")
+            cleaned["user"] = auth_user
+            # Si tu User tiene relación con Organization, asigna aquí
+            org = getattr(user, "organization", None)  # Ajusta según tu modelo
+            cleaned["org"] = org
+        except User.DoesNotExist:
+            raise forms.ValidationError("Credenciales inválidas.")
+        return cleaned
 
 def login_view(request):
     if request.method == "POST":
