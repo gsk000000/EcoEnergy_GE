@@ -67,7 +67,3 @@ class OrganizationAdmin(admin.ModelAdmin):
     list_display = ("name", "rut", "address", "created_at")
     search_fields = ("name", "rut")
     ordering = ("name",)
-class OrganizationAdmin(admin.ModelAdmin):
-    list_display = ("name", "rut", "address", "created_at")
-    search_fields = ("name", "rut")
-    ordering = ("name",)
